@@ -817,8 +817,8 @@ public class PeerConnection {
 
   private final List<MediaStream> localStreams = new ArrayList<>();
   private final long nativePeerConnection;
-  private List<RtpSender> senders = new ArrayList<>();
-  private List<RtpReceiver> receivers = new ArrayList<>();
+  public List<RtpSender> senders = new ArrayList<>();
+  public List<RtpReceiver> receivers = new ArrayList<>();
   private List<RtpTransceiver> transceivers = new ArrayList<>();
 
   /**
