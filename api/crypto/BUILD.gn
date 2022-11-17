@@ -12,6 +12,8 @@ group("crypto") {
   deps = [
     ":gcm_frame_decryptor",
     ":gcm_frame_encryptor",
+    ":fake_frame_decryptor",
+    ":fake_frame_encryptor",
     ":options",
   ]
 }
@@ -36,6 +38,37 @@ rtc_library("gcm_frame_decryptor") {
   sources = [
     "gcm_frame_decryptor.cc",
     "gcm_frame_decryptor.h",
+  ]
+  deps = [
+   ":frame_decryptor_interface",
+  ]
+  if (rtc_build_ssl) {
+    deps += [ "//third_party/boringssl" ]
+  } else {
+    configs += [ ":external_ssl_library" ]
+  }
+}
+
+rtc_library("fake_frame_encryptor") {
+  visibility = [ "*" ]
+  sources = [
+    "fake_frame_encryptor.cc",
+    "fake_frame_encryptor.h",
+  ]
+  deps = [
+   ":frame_encryptor_interface",
+  ]
+  if (rtc_build_ssl) {
+    deps += [ "//third_party/boringssl" ]
+  } else {
+    configs += [ ":external_ssl_library" ]
+  }
+}
+rtc_library("fake_frame_decryptor") {
+  visibility = [ "*" ]
+  sources = [
+    "fake_frame_decryptor.cc",
+    "fake_frame_decryptor.h",
   ]
   deps = [
    ":frame_decryptor_interface",
