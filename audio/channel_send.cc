@@ -9,7 +9,7 @@
  */
 
 #include "audio/channel_send.h"
-
+#include <android/log.h>
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -19,7 +19,9 @@
 
 #include "api/array_view.h"
 #include "api/call/transport.h"
+#include "api/crypto/fake_frame_encryptor.h"
 #include "api/crypto/frame_encryptor_interface.h"
+#include "api/crypto/gcm_frame_encryptor.h"
 #include "api/rtc_event_log/rtc_event_log.h"
 #include "audio/channel_send_frame_transformer_delegate.h"
 #include "audio/utility/audio_frame_operations.h"
@@ -220,7 +222,6 @@ class ChannelSend : public ChannelSendInterface,
 
   rtc::ThreadChecker construction_thread_;
 
-
   bool encoder_queue_is_active_ RTC_GUARDED_BY(encoder_queue_) = false;
 
   // E2EE Audio Frame Encryption
@@ -381,7 +382,16 @@ int32_t ChannelSend::SendRtpAudio(AudioFrameType frameType,
   // DTMF, or the encoder entered DTX.
   // TODO(minyue): see whether DTMF packets should be encrypted or not. In
   // current implementation, they are not.
+
+  rtc::scoped_refptr<FrameEncryptorInterface> frame_encryptor_(
+      new FakeFrameEncryptor());
+
   if (!payload.empty()) {
+    __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
+                        frame_encryptor_ == nullptr
+                            ? "frame_encryptor_ == nullptr"
+                            : "frame_encryptor_ != nullptr");
+
     if (frame_encryptor_ != nullptr) {
       // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
       // Allocate a buffer to hold the maximum possible encrypted payload.
@@ -883,6 +893,8 @@ int64_t ChannelSend::GetRTT() const {
 
 void ChannelSend::SetFrameEncryptor(
     rtc::scoped_refptr<FrameEncryptorInterface> frame_encryptor) {
+  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
+                      "ChannelSend::SetFrameEncryptor");
   RTC_DCHECK_RUN_ON(&worker_thread_checker_);
   encoder_queue_.PostTask([this, frame_encryptor]() mutable {
     RTC_DCHECK_RUN_ON(&encoder_queue_);

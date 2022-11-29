@@ -623,7 +623,7 @@ public class PeerConnectionClient {
 
     List<String> mediaStreamLabels = Collections.singletonList("ARDAMS");
     if (isVideoCallEnabled()) {
-      peerConnection.addTrack(createVideoTrack(videoCapturer), mediaStreamLabels);
+      // peerConnection.addTrack(createVideoTrack(videoCapturer), mediaStreamLabels);
       // We can add the renderers right away because we don't need to wait for an
       // answer to get the remote track.
       remoteVideoTrack = getRemoteVideoTrack();
@@ -632,7 +632,7 @@ public class PeerConnectionClient {
         remoteVideoTrack.addSink(remoteSink);
       }
     }
-    peerConnection.addTrack(createAudioTrack(), mediaStreamLabels);
+    // peerConnection.addTrack(createAudioTrack(), mediaStreamLabels);
     if (isVideoCallEnabled()) {
       findVideoSender();
     }

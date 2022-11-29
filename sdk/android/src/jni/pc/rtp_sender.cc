@@ -7,8 +7,8 @@
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
  */
-
 #include "sdk/android/src/jni/pc/rtp_sender.h"
+#include <android/log.h>
 
 #include "sdk/android/generated_peerconnection_jni/RtpSender_jni.h"
 #include "sdk/android/native_api/jni/java_types.h"
@@ -35,8 +35,7 @@ static jboolean JNI_RtpSender_SetTrack(JNIEnv* jni,
       ->SetTrack(reinterpret_cast<MediaStreamTrackInterface*>(j_track_pointer));
 }
 
-jlong JNI_RtpSender_GetTrack(JNIEnv* jni,
-                             jlong j_rtp_sender_pointer) {
+jlong JNI_RtpSender_GetTrack(JNIEnv* jni, jlong j_rtp_sender_pointer) {
   // MediaStreamTrack will have shared ownership by the MediaStreamTrack Java
   // object.
   return jlongFromPointer(
@@ -65,8 +64,7 @@ ScopedJavaLocalRef<jobject> JNI_RtpSender_GetStreams(
       convert_function);
 }
 
-jlong JNI_RtpSender_GetDtmfSender(JNIEnv* jni,
-                                  jlong j_rtp_sender_pointer) {
+jlong JNI_RtpSender_GetDtmfSender(JNIEnv* jni, jlong j_rtp_sender_pointer) {
   return jlongFromPointer(
       reinterpret_cast<RtpSenderInterface*>(j_rtp_sender_pointer)
           ->GetDtmfSender()
@@ -104,6 +102,8 @@ ScopedJavaLocalRef<jstring> JNI_RtpSender_GetId(JNIEnv* jni,
 static void JNI_RtpSender_SetFrameEncryptor(JNIEnv* jni,
                                             jlong j_rtp_sender_pointer,
                                             jlong j_frame_encryptor_pointer) {
+  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
+                      "JNI_RtpSender_SetFrameEncryptor");
   reinterpret_cast<RtpSenderInterface*>(j_rtp_sender_pointer)
       ->SetFrameEncryptor(reinterpret_cast<FrameEncryptorInterface*>(
           j_frame_encryptor_pointer));

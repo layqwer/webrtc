@@ -964,13 +964,13 @@ public class PeerConnection {
    *                  should use the same stream ID.
    * @return          A new RtpSender object if successful, or null otherwise.
    */
-  public RtpSender createSender(String kind, String stream_id) {
-    RtpSender newSender = nativeCreateSender(kind, stream_id);
-    if (newSender != null) {
-      senders.add(newSender);
-    }
-    return newSender;
-  }
+  // public RtpSender createSender(String kind, String stream_id) {
+  //   RtpSender newSender = nativeCreateSender(kind, stream_id);
+  //   if (newSender != null) {
+  //     senders.add(newSender);
+  //   }
+  //   return newSender;
+  // }
 
   /**
    * Gets all RtpSenders associated with this peer connection.
@@ -1022,21 +1022,21 @@ public class PeerConnection {
    *           - A sender already exists for the track.
    *           - The peer connection is closed.
    */
-  public RtpSender addTrack(MediaStreamTrack track) {
-    return addTrack(track, Collections.emptyList());
-  }
+  // public RtpSender addTrack(MediaStreamTrack track) {
+  //   return addTrack(track, Collections.emptyList());
+  // }
 
-  public RtpSender addTrack(MediaStreamTrack track, List<String> streamIds) {
-    if (track == null || streamIds == null) {
-      throw new NullPointerException("No MediaStreamTrack specified in addTrack.");
-    }
-    RtpSender newSender = nativeAddTrack(track.getNativeMediaStreamTrack(), streamIds);
-    if (newSender == null) {
-      throw new IllegalStateException("C++ addTrack failed.");
-    }
-    senders.add(newSender);
-    return newSender;
-  }
+  // public RtpSender addTrack(MediaStreamTrack track, List<String> streamIds) {
+  //   if (track == null || streamIds == null) {
+  //     throw new NullPointerException("No MediaStreamTrack specified in addTrack.");
+  //   }
+  //   RtpSender newSender = nativeAddTrack(track.getNativeMediaStreamTrack(), streamIds);
+  //   if (newSender == null) {
+  //     throw new IllegalStateException("C++ addTrack failed.");
+  //   }
+  //   senders.add(newSender);
+  //   return newSender;
+  // }
 
   /**
    * Stops sending media from sender. The sender will still appear in getSenders. Future
