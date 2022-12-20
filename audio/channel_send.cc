@@ -383,9 +383,6 @@ int32_t ChannelSend::SendRtpAudio(AudioFrameType frameType,
   // TODO(minyue): see whether DTMF packets should be encrypted or not. In
   // current implementation, they are not.
 
-  rtc::scoped_refptr<FrameEncryptorInterface> frame_encryptor_(
-      new FakeFrameEncryptor());
-
   if (!payload.empty()) {
     __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
                         frame_encryptor_ == nullptr
@@ -416,6 +413,9 @@ int32_t ChannelSend::SendRtpAudio(AudioFrameType frameType,
       // Rewrite the payloadData and size to the new encrypted payload.
       payload = encrypted_audio_payload;
     } else if (crypto_options_.sframe.require_frame_encryption) {
+      __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
+                          "channel::SendRtpAudio");
+
       RTC_DLOG(LS_ERROR) << "Channel::SendData() failed sending audio payload: "
                             "A frame encryptor is required but one is not set.";
       return -1;

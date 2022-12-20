@@ -10,56 +10,76 @@
 
 #include "api/crypto/fake_frame_encryptor.h"
 
+#include <android/log.h>
 #include "rtc_base/checks.h"
 
 namespace webrtc {
-FakeFrameEncryptor::FakeFrameEncryptor(uint8_t fake_key, uint8_t postfix_byte)
+FakeFrame2Encryptor::FakeFrame2Encryptor(uint8_t fake_key, uint8_t postfix_byte)
     : fake_key_(fake_key), postfix_byte_(postfix_byte) {}
 
 // FrameEncryptorInterface implementation
-int FakeFrameEncryptor::Encrypt(cricket::MediaType media_type,
-                                uint32_t ssrc,
-                                rtc::ArrayView<const uint8_t> additional_data,
-                                rtc::ArrayView<const uint8_t> frame,
-                                rtc::ArrayView<uint8_t> encrypted_frame,
-                                size_t* bytes_written) {
+int FakeFrame2Encryptor::Encrypt(cricket::MediaType media_type,
+                                 uint32_t ssrc,
+                                 rtc::ArrayView<const uint8_t> additional_data,
+                                 rtc::ArrayView<const uint8_t> frame,
+                                 rtc::ArrayView<uint8_t> encrypted_frame,
+                                 size_t* bytes_written) {
   if (fail_encryption_) {
     return static_cast<int>(FakeEncryptionStatus::FORCED_FAILURE);
   }
 
-  RTC_CHECK_EQ(frame.size() + 1, encrypted_frame.size());
-  for (size_t i = 0; i < frame.size(); i++) {
-    encrypted_frame[i] = frame[i] ^ fake_key_;
+  // video encryptor  zjq
+  uint8_t unencrypted_bytes = 1;
+  switch (media_type) {
+    case cricket::MEDIA_TYPE_AUDIO:
+      unencrypted_bytes = 1;
+      break;
+    case cricket::MEDIA_TYPE_VIDEO:
+      unencrypted_bytes = 10;
+      // unencrypted_bytes = frame.size() > 128 ? 76 : frame.size();
+      break;
+    case cricket::MEDIA_TYPE_DATA:
+      break;
+      // case cricket::MEDIA_TYPE_UNSUPPORTED:
+      //   break;
   }
 
+  // // std::vector<uint8_t> frame_header;
+  for (size_t i = 0; i < unencrypted_bytes; i++) {
+    encrypted_frame[i] = frame[i];
+    // frame_header.push_back(encrypted_frame[i]);
+  }
+  for (size_t i = unencrypted_bytes; i < frame.size(); i++) {
+    encrypted_frame[i] = frame[i] ^ fake_key_;
+  }
   encrypted_frame[frame.size()] = postfix_byte_;
   *bytes_written = encrypted_frame.size();
   return static_cast<int>(FakeEncryptionStatus::OK);
 }
 
-size_t FakeFrameEncryptor::GetMaxCiphertextByteSize(
+size_t FakeFrame2Encryptor::GetMaxCiphertextByteSize(
     cricket::MediaType media_type,
     size_t frame_size) {
   return frame_size + 1;
 }
 
-void FakeFrameEncryptor::SetFakeKey(uint8_t fake_key) {
+void FakeFrame2Encryptor::SetFakeKey(uint8_t fake_key) {
   fake_key_ = fake_key;
 }
 
-uint8_t FakeFrameEncryptor::GetFakeKey() const {
+uint8_t FakeFrame2Encryptor::GetFakeKey() const {
   return fake_key_;
 }
 
-void FakeFrameEncryptor::SetPostfixByte(uint8_t postfix_byte) {
+void FakeFrame2Encryptor::SetPostfixByte(uint8_t postfix_byte) {
   postfix_byte_ = postfix_byte;
 }
 
-uint8_t FakeFrameEncryptor::GetPostfixByte() const {
+uint8_t FakeFrame2Encryptor::GetPostfixByte() const {
   return postfix_byte_;
 }
 
-void FakeFrameEncryptor::SetFailEncryption(bool fail_encryption) {
+void FakeFrame2Encryptor::SetFailEncryption(bool fail_encryption) {
   fail_encryption_ = fail_encryption;
 }
 
