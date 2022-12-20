@@ -15,7 +15,6 @@ GCMFrameEncryptor::GCMFrameEncryptor() {
   /*this->key_bytes = { 97,  145, 133, 203, 63,  197, 49,  232, 87,  159, 169,
                      200, 59,  195, 77,  75,  150, 173, 189, 232, 44,  39,
                      8,   149, 250, 6,   238, 170, 255, 17,  110, 107 };*/
-   
 }
 
 unsigned char* encrypt(unsigned char* key,
@@ -36,11 +35,11 @@ unsigned char* encrypt(unsigned char* key,
   if (!(ctx = EVP_CIPHER_CTX_new())) {
   }
 
-  // Set cipher type and mode 
+  // Set cipher type and mode
   if (1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_gcm(), NULL, NULL, NULL)) {
   }
 
-  // Initialise key and IV 
+  // Initialise key and IV
   if (1 != EVP_EncryptInit_ex(ctx, NULL, NULL, key, iv)) {
   }
 
@@ -107,9 +106,9 @@ int GCMFrameEncryptor::Encrypt(cricket::MediaType media_type,
     plaintext[i] = frame[i + unencrypted_bytes];
   }
 
-for(size_t i = 0; i < this->key_bytes.size();i++) {
-  RTC_LOG(LS_VERBOSE) << "XXX key " << i <<  " " << key_bytes[i];
-}
+  for (size_t i = 0; i < this->key_bytes.size(); i++) {
+    RTC_LOG(LS_VERBOSE) << "XXX key " << i << " " << key_bytes[i];
+  }
 
   size_t ciphertext_len;
   unsigned char* ciphertext =

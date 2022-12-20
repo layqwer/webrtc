@@ -9,7 +9,7 @@
  */
 
 #include "modules/rtp_rtcp/source/rtp_sender_video.h"
-
+#include <android/log.h>
 #include <stdlib.h>
 #include <string.h>
 

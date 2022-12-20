@@ -1398,8 +1398,6 @@ rtc::scoped_refptr<StreamCollectionInterface> PeerConnection::remote_streams() {
 }
 
 bool PeerConnection::AddStream(MediaStreamInterface* local_stream) {
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                      "PeerConnection::AddStream");
   RTC_DCHECK_RUN_ON(signaling_thread());
   RTC_CHECK(!IsUnifiedPlan()) << "AddStream is not available with Unified Plan "
                                  "SdpSemantics. Please use AddTrack instead.";
@@ -1913,8 +1911,6 @@ rtc::scoped_refptr<RtpSenderInterface> PeerConnection::CreateSender(
   // TODO(steveanton): Move construction of the RtpSenders to RtpTransceiver.
   rtc::scoped_refptr<RtpSenderProxyWithInternal<RtpSenderInternal>> new_sender;
   if (kind == MediaStreamTrackInterface::kAudioKind) {
-    __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                        "MediaStreamTrackInterface::kAudioKind");
     auto audio_sender = AudioRtpSender::Create(
         worker_thread(), rtc::CreateRandomUuid(), stats_.get(), this);
     audio_sender->SetMediaChannel(voice_media_channel());
@@ -1922,8 +1918,6 @@ rtc::scoped_refptr<RtpSenderInterface> PeerConnection::CreateSender(
         signaling_thread(), audio_sender);
     GetAudioTransceiver()->internal()->AddSender(new_sender);
   } else if (kind == MediaStreamTrackInterface::kVideoKind) {
-    __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                        "MediaStreamTrackInterface::kVideoKind");
     auto video_sender =
         VideoRtpSender::Create(worker_thread(), rtc::CreateRandomUuid(), this);
     video_sender->SetMediaChannel(video_media_channel());
@@ -4595,8 +4589,6 @@ void PeerConnection::AddAudioTrack(AudioTrackInterface* track,
   RTC_DCHECK(!IsClosed());
   RTC_DCHECK(track);
   RTC_DCHECK(stream);
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                      "PeerConnection::AddAudioTrack");
   auto sender = FindSenderForTrack(track);
   if (sender) {
     // We already have a sender for this track, so just change the stream_id
@@ -4609,9 +4601,7 @@ void PeerConnection::AddAudioTrack(AudioTrackInterface* track,
   auto new_sender = CreateSender(cricket::MEDIA_TYPE_AUDIO, track->id(), track,
                                  {stream->id()}, {});
   new_sender->internal()->SetMediaChannel(voice_media_channel());
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!", "before AddSender");
   GetAudioTransceiver()->internal()->AddSender(new_sender);
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!", "after AddSender");
   // If the sender has already been configured in SDP, we call SetSsrc,
   // which will connect the sender to the underlying transport. This can
   // occur if a local session description that contains the ID of the sender

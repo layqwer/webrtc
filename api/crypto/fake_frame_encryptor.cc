@@ -13,16 +13,16 @@
 #include "rtc_base/checks.h"
 
 namespace webrtc {
-FakeFrameEncryptor::FakeFrameEncryptor(uint8_t fake_key, uint8_t postfix_byte)
+FakeFrame2Encryptor::FakeFrame2Encryptor(uint8_t fake_key, uint8_t postfix_byte)
     : fake_key_(fake_key), postfix_byte_(postfix_byte) {}
 
 // FrameEncryptorInterface implementation
-int FakeFrameEncryptor::Encrypt(cricket::MediaType media_type,
-                                uint32_t ssrc,
-                                rtc::ArrayView<const uint8_t> additional_data,
-                                rtc::ArrayView<const uint8_t> frame,
-                                rtc::ArrayView<uint8_t> encrypted_frame,
-                                size_t* bytes_written) {
+int FakeFrame2Encryptor::Encrypt(cricket::MediaType media_type,
+                                 uint32_t ssrc,
+                                 rtc::ArrayView<const uint8_t> additional_data,
+                                 rtc::ArrayView<const uint8_t> frame,
+                                 rtc::ArrayView<uint8_t> encrypted_frame,
+                                 size_t* bytes_written) {
   if (fail_encryption_) {
     return static_cast<int>(FakeEncryptionStatus::FORCED_FAILURE);
   }
@@ -37,29 +37,29 @@ int FakeFrameEncryptor::Encrypt(cricket::MediaType media_type,
   return static_cast<int>(FakeEncryptionStatus::OK);
 }
 
-size_t FakeFrameEncryptor::GetMaxCiphertextByteSize(
+size_t FakeFrame2Encryptor::GetMaxCiphertextByteSize(
     cricket::MediaType media_type,
     size_t frame_size) {
   return frame_size + 1;
 }
 
-void FakeFrameEncryptor::SetFakeKey(uint8_t fake_key) {
+void FakeFrame2Encryptor::SetFakeKey(uint8_t fake_key) {
   fake_key_ = fake_key;
 }
 
-uint8_t FakeFrameEncryptor::GetFakeKey() const {
+uint8_t FakeFrame2Encryptor::GetFakeKey() const {
   return fake_key_;
 }
 
-void FakeFrameEncryptor::SetPostfixByte(uint8_t postfix_byte) {
+void FakeFrame2Encryptor::SetPostfixByte(uint8_t postfix_byte) {
   postfix_byte_ = postfix_byte;
 }
 
-uint8_t FakeFrameEncryptor::GetPostfixByte() const {
+uint8_t FakeFrame2Encryptor::GetPostfixByte() const {
   return postfix_byte_;
 }
 
-void FakeFrameEncryptor::SetFailEncryption(bool fail_encryption) {
+void FakeFrame2Encryptor::SetFailEncryption(bool fail_encryption) {
   fail_encryption_ = fail_encryption;
 }
 

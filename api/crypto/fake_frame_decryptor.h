@@ -23,17 +23,17 @@
 
 namespace webrtc {
 
-// The FakeFrameDecryptor is a TEST ONLY fake implementation of the
+// The FakeFrame2Decryptor is a TEST ONLY fake implementation of the
 // FrameDecryptorInterface. It is constructed with a simple single digit key and
 // a fixed postfix byte. This is just to validate that the core code works
 // as expected.
-class FakeFrameDecryptor final
+class FakeFrame2Decryptor final
     : public rtc::RefCountedObject<FrameDecryptorInterface> {
  public:
   // Provide a key (0,255) and some postfix byte (0,255) this should match the
   // byte you expect from the FakeFrameEncryptor.
-  explicit FakeFrameDecryptor(uint8_t fake_key = 0xAA,
-                              uint8_t expected_postfix_byte = 255);
+  explicit FakeFrame2Decryptor(uint8_t fake_key = 0xAA,
+                               uint8_t expected_postfix_byte = 255);
   // Fake decryption that just xors the payload with the 1 byte key and checks
   // the postfix byte. This will always fail if fail_decryption_ is set to true.
   Result Decrypt(cricket::MediaType media_type,

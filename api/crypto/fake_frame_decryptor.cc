@@ -16,11 +16,11 @@
 
 namespace webrtc {
 
-FakeFrameDecryptor::FakeFrameDecryptor(uint8_t fake_key,
-                                       uint8_t expected_postfix_byte)
+FakeFrame2Decryptor::FakeFrame2Decryptor(uint8_t fake_key,
+                                         uint8_t expected_postfix_byte)
     : fake_key_(fake_key), expected_postfix_byte_(expected_postfix_byte) {}
 
-FakeFrameDecryptor::Result FakeFrameDecryptor::Decrypt(
+FakeFrame2Decryptor::Result FakeFrame2Decryptor::Decrypt(
     cricket::MediaType media_type,
     const std::vector<uint32_t>& csrcs,
     rtc::ArrayView<const uint8_t> additional_data,
@@ -42,29 +42,30 @@ FakeFrameDecryptor::Result FakeFrameDecryptor::Decrypt(
   return Result(Status::kOk, frame.size());
 }
 
-size_t FakeFrameDecryptor::GetMaxPlaintextByteSize(
+size_t FakeFrame2Decryptor::GetMaxPlaintextByteSize(
     cricket::MediaType media_type,
     size_t encrypted_frame_size) {
   return encrypted_frame_size - 1;
 }
 
-void FakeFrameDecryptor::SetFakeKey(uint8_t fake_key) {
+void FakeFrame2Decryptor::SetFakeKey(uint8_t fake_key) {
   fake_key_ = fake_key;
 }
 
-uint8_t FakeFrameDecryptor::GetFakeKey() const {
+uint8_t FakeFrame2Decryptor::GetFakeKey() const {
   return fake_key_;
 }
 
-void FakeFrameDecryptor::SetExpectedPostfixByte(uint8_t expected_postfix_byte) {
+void FakeFrame2Decryptor::SetExpectedPostfixByte(
+    uint8_t expected_postfix_byte) {
   expected_postfix_byte_ = expected_postfix_byte;
 }
 
-uint8_t FakeFrameDecryptor::GetExpectedPostfixByte() const {
+uint8_t FakeFrame2Decryptor::GetExpectedPostfixByte() const {
   return expected_postfix_byte_;
 }
 
-void FakeFrameDecryptor::SetFailDecryption(bool fail_decryption) {
+void FakeFrame2Decryptor::SetFailDecryption(bool fail_decryption) {
   fail_decryption_ = fail_decryption;
 }
 

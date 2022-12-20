@@ -1,12 +1,12 @@
 #include "api/crypto/fake_frame_encryptor.h"
 #include <vector>
 #include "rtc_base/logging.h"
-#include "sdk/android/generated_peerconnection_jni/FakeFrameEncryptor_jni.h"
+#include "sdk/android/generated_peerconnection_jni/FakeFrame2Encryptor_jni.h"
 #include "sdk/android/src/jni/jni_helpers.h"
 namespace webrtc {
 namespace jni {
-static jlong JNI_FakeFrameEncryptor_GetFakeFrameEncryptor(JNIEnv* jni) {
-  return jlongFromPointer(new FakeFrameEncryptor());
+static jlong JNI_FakeFrame2Encryptor_GetFakeFrame2Encryptor(JNIEnv* jni) {
+  return jlongFromPointer(new FakeFrame2Encryptor());
 }
 // static void JNI_FakeFrameEncryptor_SetKey(
 //     JNIEnv* jni,
