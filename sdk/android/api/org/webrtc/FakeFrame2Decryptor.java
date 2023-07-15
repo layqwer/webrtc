@@ -1,14 +1,16 @@
 package org.webrtc;
+
 public class FakeFrame2Decryptor implements FrameDecryptor {
     private final long nativeDecryptor;
-    public FakeFrame2Decryptor() {
-        nativeDecryptor = nativeGetFakeFrame2Decryptor();
+
+    public FakeFrame2Decryptor(String key) {
+        nativeDecryptor = nativeGetFakeFrame2Decryptor(key);
     }
+
     @Override
     public long getNativeFrameDecryptor() {
         return nativeDecryptor;
     }
-    // public void setKey(int[] key) {
-    // }
-    private static native long nativeGetFakeFrame2Decryptor();
+
+    private static native long nativeGetFakeFrame2Decryptor(String key);
 }

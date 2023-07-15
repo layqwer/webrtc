@@ -4,8 +4,11 @@
 #include "sdk/android/src/jni/jni_helpers.h"
 namespace webrtc {
 namespace jni {
-static jlong JNI_FakeFrame2Decryptor_GetFakeFrame2Decryptor(JNIEnv* jni) {
-  return jlongFromPointer(new FakeFrame2Decryptor());
+static jlong JNI_FakeFrame2Decryptor_GetFakeFrame2Decryptor(
+    JNIEnv* env,
+    const JavaParamRef<jstring>& key) {
+  std::string decrypt_key = JavaToStdString(env, key);
+  return jlongFromPointer(new FakeFrame2Decryptor(decrypt_key));
 }
 }  // namespace jni
 }  // namespace webrtc
