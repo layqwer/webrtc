@@ -52,6 +52,8 @@ class FakeFrame2Encryptor
   // Force all encryptions to fail.
   void SetFailEncryption(bool fail_encryption);
 
+  std::string binaryToHex(unsigned char binaryStr[], int binarySize);
+
   enum class FakeEncryptionStatus : int {
     OK = 0,
     FORCED_FAILURE = 1,

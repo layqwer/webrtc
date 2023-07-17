@@ -18,10 +18,7 @@
 
 namespace webrtc {
 FakeFrame2Encryptor::FakeFrame2Encryptor(std::string fake_key)
-    : fake_key_(fake_key) {
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEFakeFrame2Encryptor!!!!",
-                      "Encryptor fake key=%s", fake_key.c_str());
-}
+    : fake_key_(fake_key) {}
 
 // 加密算法chatgpt给的
 // std::vector<uint8_t> encrypt(std::string& password,
@@ -82,6 +79,7 @@ FakeFrame2Encryptor::FakeFrame2Encryptor(std::string fake_key)
 // }
 
 // 加密 https://blog.csdn.net/u013550000/article/details/97282611
+// plaintext是明文，plaintext_len是明文长，ciphertext是密文，返回密文长度
 int encrypt(unsigned char* plaintext,
             int plaintext_len,
             unsigned char* key,
@@ -91,7 +89,7 @@ int encrypt(unsigned char* plaintext,
 
   int len;
 
-  int ciphertext_len;
+  int ciphertext_len = 0;
 
   /* Create and initialise the context */
   if (!(ctx = EVP_CIPHER_CTX_new())) {
@@ -100,14 +98,23 @@ int encrypt(unsigned char* plaintext,
   }
 
   // 设置加密算法和密钥
-  const EVP_CIPHER* cipher = EVP_aes_256_cbc();  // 使用AES-256-CBC算法
-  const unsigned char* iv2 = EVP_CIPHER_iv_length(cipher) > 0 ? key : nullptr;
+  const EVP_CIPHER* cipher =
+      EVP_aes_256_cbc();  // 使用AES-256-CBC算法，默认使用PKCS7
+                          // 填充方式，块的大小为16字节，明文79加密后长度应该为80字节
+  const char ivtxt[] = "0123456789012345";
+  const unsigned char* iv2 = reinterpret_cast<const unsigned char*>(ivtxt);
+  // const unsigned char* iv2 = EVP_CIPHER_iv_length(cipher) > 0 ? key :
+  // nullptr;
 
   /* Initialise the encryption operation. IMPORTANT - ensure you use a key
    * and IV size appropriate for your cipher
    * In this example we are using 256 bit AES (i.e. a 256 bit key). The
    * IV size for *most* modes is the same as the block size. For AES this
    * is 128 bits */
+  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
+                      "key.leng=%zu iv.leng=%zu", strlen((char*)key),
+                      strlen((char*)iv2));
+
   if (1 != EVP_EncryptInit_ex(ctx, cipher, NULL, key, iv2)) {
     __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
                         "EVP_EncryptInit_ex failed");
@@ -137,110 +144,143 @@ int encrypt(unsigned char* plaintext,
   return ciphertext_len;
 }
 
-// FrameEncryptorInterface implementation
+// encrypted_frame的长度是GetMaxCiphertextByteSize的返回值，所以GetMaxCiphertextByteSize一定是返回密文整包的长度
 int FakeFrame2Encryptor::Encrypt(cricket::MediaType media_type,
                                  uint32_t ssrc,
                                  rtc::ArrayView<const uint8_t> additional_data,
                                  rtc::ArrayView<const uint8_t> frame,
                                  rtc::ArrayView<uint8_t> encrypted_frame,
                                  size_t* bytes_written) {
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
-                      "Encrypt key=%s", fake_key_.c_str());
-  for (size_t i = 0; i < frame.size(); i++) {
-    encrypted_frame[i] = frame[i];
-  }
-  *bytes_written = encrypted_frame.size();
+  // for (size_t i = 0; i < frame.size(); i++) {
+  //   encrypted_frame[i] = frame[i];
+  // }
+  // *bytes_written = encrypted_frame.size();
 
-  // //================================================================
+  //================================================================
   // if (fail_encryption_) {
   //   return static_cast<int>(FakeEncryptionStatus::FORCED_FAILURE);
   // }
 
-  // // video encryptor  zjq
-  // uint8_t unencrypted_bytes = 1;
-  // switch (media_type) {
-  //   case cricket::MEDIA_TYPE_AUDIO:
-  //     unencrypted_bytes = 1;
-  //     break;
-  //   case cricket::MEDIA_TYPE_VIDEO:
-  //     unencrypted_bytes = 10;
-  //     break;
-  //   case cricket::MEDIA_TYPE_DATA:
-  //     break;
-  // }
+  // video encryptor  zjq
+  uint8_t unencrypted_bytes = 1;
+  switch (media_type) {
+    case cricket::MEDIA_TYPE_AUDIO:
+      unencrypted_bytes = 1;
+      break;
+    case cricket::MEDIA_TYPE_VIDEO:
+      unencrypted_bytes = 10;
+      break;
+    case cricket::MEDIA_TYPE_DATA:
+      break;
+  }
 
   // std::vector<uint8_t> frame_header;
-  // for (size_t i = 0; i < unencrypted_bytes; i++) {
-  //   encrypted_frame[i] = frame[i];
-  //   frame_header.push_back(encrypted_frame[i]);
+  for (size_t i = 0; i < unencrypted_bytes; i++) {
+    encrypted_frame[i] = frame[i];
+    // frame_header.push_back(encrypted_frame[i]);
+  }
+
+  // 提取需要加密的数据段到plaintext
+  unsigned char plaintext[frame.size() - unencrypted_bytes];
+  for (size_t i = 0; i < frame.size() - unencrypted_bytes; i++) {
+    // plaintext[i] = 0x61;
+    plaintext[i] = frame[i + unencrypted_bytes];
+  }
+
+  // 加密段的长度
+  size_t cipher_len;
+
+  // chatgpt的写法
+  //  std::vector<uint8_t> cipher = encrypt(fake_key_, plaintext);
+  // for (size_t i = 0; i < cipher.size(); i++) {
+  //   encrypted_frame[unencrypted_bytes + i] = cipher[i];
   // }
 
-  // // 提取需要加密的数据段
-  // unsigned char plaintext[frame.size() - unencrypted_bytes];
-  // for (size_t i = 0; i < frame.size() - unencrypted_bytes; i++) {
-  //   plaintext[i] = frame[i + unencrypted_bytes];
+  size_t encrypted_frame_size =
+      GetMaxCiphertextByteSize(media_type, frame.size());
+  // 这里encrypted_frame_size是加密帧大小，而ciphertext只存储密文，不需要这么大，但是此时cipher_len还没有，所以暂时使用encrypted_frame_size
+  unsigned char ciphertext[encrypted_frame_size];
+  cipher_len = encrypt(
+      &plaintext[0], frame.size() - unencrypted_bytes,
+      reinterpret_cast<unsigned char*>(const_cast<char*>(fake_key_.c_str())),
+      nullptr, &ciphertext[0]);
+
+  // ciphertext[cipher_len - 1] = 1;
+  __android_log_print(
+      ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
+      "encrypt done cipher_len=%zu and encrypted_frame_size=%zu and padding=%d",
+      cipher_len, encrypted_frame_size, ciphertext[cipher_len - 1]);
+
+  for (size_t i = 0; i < cipher_len; i++) {
+    encrypted_frame[unencrypted_bytes + i] = ciphertext[i];
+  }
+
+  __android_log_print(
+      ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
+      "encrypt plaintext=%s and ciphertext=%s and frame=%s",
+      binaryToHex(plaintext, frame.size() - unencrypted_bytes).c_str(),
+      binaryToHex(ciphertext, cipher_len).c_str(),
+      binaryToHex(reinterpret_cast<unsigned char*>(encrypted_frame.data()),
+                  encrypted_frame.size())
+          .c_str());
+
+  // 这段把iv和加密数据合并了为啥
+  //  size_t iv_start = unencrypted_bytes + ciphertext_len;
+
+  // for (size_t i = 0; i < iv.size(); i++) {
+  //   encrypted_frame[iv_start + i] = iv[i];
   // }
 
-  // size_t cipher_len;
+  // encrypted_frame[iv_start + iv.size()] = iv.size();
 
-  // // chatgpt的写法
-  // //  std::vector<uint8_t> cipher = encrypt(fake_key_, plaintext);
-  // // for (size_t i = 0; i < cipher.size(); i++) {
-  // //   encrypted_frame[unencrypted_bytes + i] = cipher[i];
-  // // }
-
-  // unsigned char ciphertext[GetMaxCiphertextByteSize(media_type,
-  // frame.size())]; cipher_len = encrypt(
-  //     &plaintext[0], frame.size() - unencrypted_bytes,
-  //     reinterpret_cast<unsigned char*>(const_cast<char*>(fake_key_.c_str())),
-  //     nullptr, &ciphertext[0]);
-  // for (size_t i = 0; i < cipher_len; i++) {
-  //   encrypted_frame[unencrypted_bytes + i] = ciphertext[i];
-  // }
-
-  // // 这段把iv和加密数据合并了为啥
-  // //  size_t iv_start = unencrypted_bytes + ciphertext_len;
-
-  // // for (size_t i = 0; i < iv.size(); i++) {
-  // //   encrypted_frame[iv_start + i] = iv[i];
-  // // }
-
-  // // encrypted_frame[iv_start + iv.size()] = iv.size();
-
-  // // *bytes_written = encrypted_frame.size();
-  // //================================================================
+  *bytes_written = encrypted_frame.size();
+  //================================================================
 
   return static_cast<int>(FakeEncryptionStatus::OK);
 }
 
-// 这里必须返回加密之后密文的长度
+// 这里必须返回加密之后帧的长度
+// media_type是数据类型，因为这个方法被sender调佣了所以frame_size只能是整个帧的长度
+// 先根据数据类型获取要加密部分，再根据所使用的aes256，计算长度。加密部分长度不小于明文长度且最小的128的倍数
 size_t FakeFrame2Encryptor::GetMaxCiphertextByteSize(
     cricket::MediaType media_type,
     size_t frame_size) {
-  return frame_size;
-  // uint8_t unencrypted_bytes = 1;
-  // switch (media_type) {
-  //   case cricket::MEDIA_TYPE_AUDIO:
-  //     unencrypted_bytes = 1;
-  //     break;
-  //   case cricket::MEDIA_TYPE_VIDEO:
-  //     unencrypted_bytes = 10;
-  //     break;
-  //   case cricket::MEDIA_TYPE_DATA:
-  //     break;
-  // }
-  // size_t plain_len = frame_size - unencrypted_bytes;
-  // size_t encrypted_len = frame_size;
-  // if (plain_len % 128 != 0) {
-  //   encrypted_len = plain_len + 128 - (plain_len % 128);
-  // }
-  // __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
-  //                     "GetMaxCiphertextByteSize: %zu", encrypted_len);
-  // return encrypted_len;
+  uint8_t unencrypted_size = 1;
+  switch (media_type) {
+    case cricket::MEDIA_TYPE_AUDIO:
+      unencrypted_size = 1;
+      break;
+    case cricket::MEDIA_TYPE_VIDEO:
+      unencrypted_size = 10;
+      break;
+    case cricket::MEDIA_TYPE_DATA:
+      break;
+  }
+  size_t plain_size = frame_size - unencrypted_size;
+  size_t encrypted_size = plain_size;
+  if (plain_size % 16 != 0) {
+    encrypted_size = plain_size + 16 - (plain_size % 16);
+  }
+  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVEzjq1111!!!!",
+                      "GetMaxCiphertextByteSize frame: %zu, unencrypted: %d, "
+                      "plain: %zu, encrypted: %zu,",
+                      frame_size, unencrypted_size, plain_size, encrypted_size);
+  return encrypted_size + unencrypted_size;
 }
 
 void FakeFrame2Encryptor::SetFailEncryption(bool fail_encryption) {
   fail_encryption_ = fail_encryption;
+}
+
+std::string FakeFrame2Encryptor::binaryToHex(unsigned char binaryStr[],
+                                             int binarySize) {
+  std::string ret;
+  static const char* hex = "0123456789ABCDEF";
+  for (auto i = 0; i < binarySize; i++) {
+    ret.push_back(hex[(binaryStr[i] >> 4) & 0xf]);  // 取二进制高四位
+    ret.push_back(hex[binaryStr[i] & 0xf]);         // 取二进制低四位
+  }
+  return ret;
 }
 
 }  // namespace webrtc
