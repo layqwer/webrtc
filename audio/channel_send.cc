@@ -384,11 +384,6 @@ int32_t ChannelSend::SendRtpAudio(AudioFrameType frameType,
   // current implementation, they are not.
 
   if (!payload.empty()) {
-    __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                        frame_encryptor_ == nullptr
-                            ? "frame_encryptor_ == nullptr"
-                            : "frame_encryptor_ != nullptr");
-
     if (frame_encryptor_ != nullptr) {
       // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
       // Allocate a buffer to hold the maximum possible encrypted payload.
@@ -413,9 +408,6 @@ int32_t ChannelSend::SendRtpAudio(AudioFrameType frameType,
       // Rewrite the payloadData and size to the new encrypted payload.
       payload = encrypted_audio_payload;
     } else if (crypto_options_.sframe.require_frame_encryption) {
-      __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                          "channel::SendRtpAudio");
-
       RTC_DLOG(LS_ERROR) << "Channel::SendData() failed sending audio payload: "
                             "A frame encryptor is required but one is not set.";
       return -1;
@@ -893,8 +885,6 @@ int64_t ChannelSend::GetRTT() const {
 
 void ChannelSend::SetFrameEncryptor(
     rtc::scoped_refptr<FrameEncryptorInterface> frame_encryptor) {
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                      "ChannelSend::SetFrameEncryptor");
   RTC_DCHECK_RUN_ON(&worker_thread_checker_);
   encoder_queue_.PostTask([this, frame_encryptor]() mutable {
     RTC_DCHECK_RUN_ON(&encoder_queue_);

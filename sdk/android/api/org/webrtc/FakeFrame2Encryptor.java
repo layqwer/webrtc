@@ -1,16 +1,16 @@
 package org.webrtc;
+
 public class FakeFrame2Encryptor implements FrameEncryptor {
     private final long nativeEncryptor;
-    public FakeFrame2Encryptor() {
-        nativeEncryptor = nativeGetFakeFrame2Encryptor();
+
+    public FakeFrame2Encryptor(String key) {
+        nativeEncryptor = nativeGetFakeFrame2Encryptor(key);
     }
+
     @Override
     public long getNativeFrameEncryptor() {
-        return nativeGetFakeFrame2Encryptor();
+        return nativeEncryptor;
     }
-    // public void setKey(int[] key) {
-    //     nativeSetKey(key);
-    // }
-    private static native long nativeGetFakeFrame2Encryptor();
-    // private native void nativeSetKey(int[] key);
+
+    private static native long nativeGetFakeFrame2Encryptor(String key);
 }

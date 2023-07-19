@@ -102,8 +102,6 @@ ScopedJavaLocalRef<jstring> JNI_RtpSender_GetId(JNIEnv* jni,
 static void JNI_RtpSender_SetFrameEncryptor(JNIEnv* jni,
                                             jlong j_rtp_sender_pointer,
                                             jlong j_frame_encryptor_pointer) {
-  __android_log_print(ANDROID_LOG_ERROR, "!!!!NATIVE!!!!",
-                      "JNI_RtpSender_SetFrameEncryptor");
   reinterpret_cast<RtpSenderInterface*>(j_rtp_sender_pointer)
       ->SetFrameEncryptor(reinterpret_cast<FrameEncryptorInterface*>(
           j_frame_encryptor_pointer));

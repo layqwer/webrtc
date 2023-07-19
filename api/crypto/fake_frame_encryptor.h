@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "api/array_view.h"
+#include "api/crypto/crypto_utils.h"
 #include "api/crypto/frame_encryptor_interface.h"
 #include "api/media_types.h"
 #include "rtc_base/ref_counted_object.h"
@@ -29,8 +30,7 @@ class FakeFrame2Encryptor
     : public rtc::RefCountedObject<FrameEncryptorInterface> {
  public:
   // Provide a key (0,255) and some postfix byte (0,255).
-  explicit FakeFrame2Encryptor(uint8_t fake_key = 0xAA,
-                               uint8_t postfix_byte = 255);
+  explicit FakeFrame2Encryptor(std::string fake_key = "");
   // Simply xors each payload with the provided fake key and adds the postfix
   // bit to the end. This will always fail if fail_encryption_ is set to true.
   int Encrypt(cricket::MediaType media_type,
@@ -43,13 +43,13 @@ class FakeFrame2Encryptor
   size_t GetMaxCiphertextByteSize(cricket::MediaType media_type,
                                   size_t frame_size) override;
   // Sets the fake key to use during encryption.
-  void SetFakeKey(uint8_t fake_key);
+  // void SetFakeKey(uint8_t fake_key);
   // Returns the fake key used during encryption.
-  uint8_t GetFakeKey() const;
+  // uint8_t GetFakeKey() const;
   // Set the postfix byte to use.
-  void SetPostfixByte(uint8_t expected_postfix_byte);
+  // void SetPostfixByte(uint8_t expected_postfix_byte);
   // Return a postfix byte added to each outgoing payload.
-  uint8_t GetPostfixByte() const;
+  // uint8_t GetPostfixByte() const;
   // Force all encryptions to fail.
   void SetFailEncryption(bool fail_encryption);
 
@@ -59,8 +59,7 @@ class FakeFrame2Encryptor
   };
 
  private:
-  uint8_t fake_key_ = 0;
-  uint8_t postfix_byte_ = 0;
+  std::string fake_key_ = "";
   bool fail_encryption_ = false;
 };
 
