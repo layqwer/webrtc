@@ -15,6 +15,7 @@
 #include <stdint.h>
 
 #include "api/array_view.h"
+#include "api/crypto/crypto_utils.h"
 #include "api/crypto/frame_encryptor_interface.h"
 #include "api/media_types.h"
 #include "rtc_base/ref_counted_object.h"
@@ -51,8 +52,6 @@ class FakeFrame2Encryptor
   // uint8_t GetPostfixByte() const;
   // Force all encryptions to fail.
   void SetFailEncryption(bool fail_encryption);
-
-  std::string binaryToHex(unsigned char binaryStr[], int binarySize);
 
   enum class FakeEncryptionStatus : int {
     OK = 0,
